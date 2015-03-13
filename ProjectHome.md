@@ -1,0 +1,1 @@
+Very useful for gamers who accidentally pressing Windows key while playing. Use low level key hook.
