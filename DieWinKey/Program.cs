@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace DieWinKey
 {
-
-    
     static class Program
     {
         private const int WM_KEYDOWN = 0x0100;
-        private static KeyIntercepter.LowLevelKeyboardProc _proc = HookCallback;
-        private static IntPtr _hookID = IntPtr.Zero;
+        private const int WM_MOUSEWHEEL = 0x020A;
+        private static IntPtr _keyboardHookID = IntPtr.Zero;
+        private static IntPtr _mouseHookID = IntPtr.Zero;
 
         /// <summary>
         /// The main entry point for the application.
@@ -22,13 +19,18 @@ namespace DieWinKey
         {
             try
             {
-                _hookID = KeyIntercepter.SetHook(_proc);
+                _keyboardHookID = Intercepter.SetKeyboardHook(KeyboardHookCallback);
+                _mouseHookID = Intercepter.SetMouseHook(MouseHookCallback);
             }
             catch
             {
-                if (_hookID != IntPtr.Zero)
+                if (_keyboardHookID != IntPtr.Zero)
                 {
-                    KeyIntercepter.UnhookWindowsHookEx(_hookID);
+                    Intercepter.UnhookWindowsHookEx(_keyboardHookID);
+                }
+                if (_mouseHookID != IntPtr.Zero)
+                {
+                    Intercepter.UnhookWindowsHookEx(_mouseHookID);
                 }
             }
             Application.EnableVisualStyles();
@@ -36,7 +38,7 @@ namespace DieWinKey
             Application.Run(new MainForm());
         }
 
-        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private static IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
@@ -47,7 +49,18 @@ namespace DieWinKey
                     return (IntPtr)1;
                 }
             }
-            return KeyIntercepter.CallNextHookEx(_hookID, nCode, wParam, lParam);
+            return Intercepter.CallNextHookEx(_keyboardHookID, nCode, wParam, lParam);
+        }
+
+        private static IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)WM_MOUSEWHEEL)
+            {
+                return (IntPtr)1;
+
+            }
+
+            return Intercepter.CallNextHookEx(_mouseHookID, nCode, wParam, lParam);
         }
     }
 }

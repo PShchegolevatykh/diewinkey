@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
 
 namespace DieWinKey
 {
-    class KeyIntercepter
+    public class Intercepter
     {
-
-        public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+        public delegate IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam);
 
         private const int WH_KEYBOARD_LL = 13;
+        private const int WH_MOUSE_LL = 14;
 
-        public static IntPtr SetHook(LowLevelKeyboardProc proc)
+        public static IntPtr SetKeyboardHook(HookCallback proc)
         {
             using (Process currentProcess = Process.GetCurrentProcess())
             using (ProcessModule currentModule = currentProcess.MainModule)
@@ -23,8 +20,17 @@ namespace DieWinKey
             }
         }
 
+        public static IntPtr SetMouseHook(HookCallback proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
+            {
+                return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+        private static extern IntPtr SetWindowsHookEx(int idHook, HookCallback lpfn, IntPtr hMod, uint dwThreadId);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

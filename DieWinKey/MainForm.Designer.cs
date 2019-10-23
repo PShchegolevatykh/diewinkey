@@ -54,7 +54,7 @@
             // 
             this.mainNotifyIcon.ContextMenuStrip = this.mainContextMenuStrip;
             this.mainNotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("mainNotifyIcon.Icon")));
-            this.mainNotifyIcon.Text = "Windows Key Killer";
+            this.mainNotifyIcon.Text = "Windows Key and Mouse Wheel Killer";
             this.mainNotifyIcon.Visible = true;
             // 
             // MainForm
